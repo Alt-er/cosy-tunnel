@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<!-- 日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<!-- status="WARN" :用于设置log4j2自身内部日志的信息输出级别，默认是OFF-->
+<!-- monitorInterval="30" :间隔秒数,自动检测配置文件的变更和重新配置本身-->
+<!-- 删除的配置: monitorInterval="30" strict="true" schema="Log4J-V2.2.xsd" -->
+<Configuration status="warn" name="cosy" >
+	<Properties>
+		<Property name="baseDir">logs</Property>
+	</Properties>
+	<Appenders>
+		<!-- 输出到控制台 -->
+		<Console name="Console" target="SYSTEM_OUT">
+			<!-- 需要记录的级别 -->
+			<!-- <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY" 
+				/> -->
+			<!-- 输出的日志格式,这里使用了匹配模式,如果marker是SystemOutPattern则直接输出日志,不附加前面的信息 -->
+<!--			<PatternLayout>-->
+<!--				<MarkerPatternSelector defaultPattern="[%5p]%d{yyyy-MM-dd HH:mm:ss,SSS} %t (%F:%L) - %m%n">-->
+<!--					<PatternMatch key="SystemOutPattern" pattern="%m%n" />-->
+<!--				</MarkerPatternSelector>-->
+<!--			</PatternLayout>-->
+
+			<PatternLayout
+					pattern="[%5p]%d{yyyy-MM-dd HH:mm:ss,SSS} %t (%F:%L) - %m%n" />
+		</Console>
+
+		<!-- 输出到文件，按天或者超过150MB分割 -->
+		<!-- 从RollingFile切换到RollingRandomAccessFile,官方说这个能提升20%-200%的性能		-->
+		<RollingRandomAccessFile name="RollingFile" fileName="logs/cosy.log"
+			filePattern="${baseDir}/$${date:yyyy-MM}/cosy-%d{yyyy-MM-dd}-%i.log.gz">
+			<!-- 需要记录的级别 -->
+			<!-- <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY" 
+				/> -->
+			<!-- 输出的日志格式,这里使用了匹配模式,如果marker是SystemOutPattern则直接输出日志,不附加前面的信息 -->
+<!--			<PatternLayout>-->
+<!--				<MarkerPatternSelector defaultPattern="[%5p]%d{yyyy-MM-dd HH:mm:ss,SSS} %t (%F:%L) - %m%n">-->
+<!--					<PatternMatch key="SystemOutPattern" pattern="%m%n" />-->
+<!--				</MarkerPatternSelector>-->
+<!--			</PatternLayout>-->
+			<PatternLayout
+					pattern="[%5p]%d{yyyy-MM-dd HH:mm:ss,SSS} %t (%F:%L) - %m%n" />
+			<Policies>
+				<!-- 每次jvm启动的时候触发归档,不建议开启,因为每次重启都会生成一个日志文件 -->
+				<!-- <OnStartupTriggeringPolicy /> -->
+				<!-- 按照时间触发 filePattern 中时间发生变化则触发归档,比如凌晨的时候				-->
+				<TimeBasedTriggeringPolicy />
+				<!-- 文件大小达到150MB触发归档	-->
+				<SizeBasedTriggeringPolicy size="150MB" />
+			</Policies>
+			<!-- 默认归档策略,计数器达到10时删除最早的日志文件删除,即%i不会超过10 -->
+			<DefaultRolloverStrategy max="10" >
+				<Delete basePath="${baseDir}" maxDepth="2" >
+					<!-- 匹配需要删除的文件名 -->
+					<IfAny>
+						<IfFileName glob="*/cosy-*.log.gz" />
+						<IfFileName glob="*/cosy-*.log" />
+					</IfAny>
+					<!-- cosy日志超过15GB或者时间超过180天则删除 -->
+					<IfAny>
+						<IfAccumulatedFileSize exceeds="50MB" />
+						<IfLastModified age="180d" />
+					</IfAny>
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingRandomAccessFile>
+<!--		<RollingRandomAccessFile name="CodeRollingFile"-->
+<!--			fileName="logs/code.log"-->
+<!--			filePattern="logs/$${date:yyyy-MM}/code-%d{yyyy-MM-dd}-%i.log.gz">-->
+<!--			&lt;!&ndash; 需要记录的级别 &ndash;&gt;-->
+<!--			&lt;!&ndash; <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY" -->
+<!--				/> &ndash;&gt;-->
+<!--			<PatternLayout-->
+<!--				pattern="[%5p]%d{yyyy-MM-dd HH:mm:ss,SSS} %t (%F:%L) - %m%n" />-->
+<!--			<Policies>-->
+<!--				&lt;!&ndash; 每次jvm启动的时候触发归档,不建议开启,因为每次重启都会生成一个日志文件 &ndash;&gt;-->
+<!--				&lt;!&ndash; <OnStartupTriggeringPolicy /> &ndash;&gt;-->
+<!--				&lt;!&ndash; 按照时间触发 filePattern 中时间发生变化则触发归档,比如凌晨的时候				&ndash;&gt;-->
+<!--				<TimeBasedTriggeringPolicy />-->
+<!--				&lt;!&ndash; 文件大小达到15MB触发归档	&ndash;&gt;-->
+<!--				<SizeBasedTriggeringPolicy size="15MB" />-->
+<!--			</Policies>-->
+<!--			&lt;!&ndash; 默认归档策略,计数器达到10时删除最早的日志文件删除,即%i不会超过10 &ndash;&gt;-->
+<!--			<DefaultRolloverStrategy max="10" >-->
+<!--				<Delete basePath="${baseDir}" maxDepth="2" >-->
+<!--					&lt;!&ndash; 匹配需要删除的文件名 &ndash;&gt;-->
+<!--					<IfAny>-->
+<!--						<IfFileName glob="*/code-*.log.gz" />-->
+<!--						<IfFileName glob="*/code-*.log" />-->
+<!--					</IfAny>-->
+<!--					&lt;!&ndash; cosy日志超过150MB或者时间超过365天则删除 &ndash;&gt;-->
+<!--					<IfAny>-->
+<!--						<IfAccumulatedFileSize exceeds="150MB" />-->
+<!--						<IfLastModified age="365d" />-->
+<!--					</IfAny>-->
+<!--				</Delete>-->
+<!--			</DefaultRolloverStrategy>-->
+<!--		</RollingRandomAccessFile>-->
+		<RollingRandomAccessFile name="ErrorRollingFile"
+			fileName="logs/error.log"
+			filePattern="logs/$${date:yyyy-MM}/error-%d{yyyy-MM-dd}-%i.log.gz">
+			<!-- 需要记录的级别 -->
+			<ThresholdFilter level="error" onMatch="ACCEPT"
+				onMismatch="DENY" />
+			<!-- 输出的日志格式,这里使用了匹配模式,如果marker是SystemOutPattern则直接输出日志,不附加前面的信息 -->
+			<PatternLayout>
+				<MarkerPatternSelector defaultPattern="[%5p]%d{yyyy-MM-dd HH:mm:ss,SSS} %t (%F:%L) - %m%n">
+					<PatternMatch key="SystemOutPattern" pattern="%m%n" />
+				</MarkerPatternSelector>
+			</PatternLayout>
+			<Policies>
+				<!-- 每次jvm启动的时候触发归档,不建议开启,因为每次重启都会生成一个日志文件 -->
+				<!-- <OnStartupTriggeringPolicy /> -->
+				<!-- 按照时间触发 filePattern 中时间发生变化则触发归档,比如凌晨的时候				-->
+				<TimeBasedTriggeringPolicy />
+				<!-- 文件大小达到150MB触发归档	-->
+				<SizeBasedTriggeringPolicy size="150MB" />
+			</Policies>
+			<!-- 默认归档策略,计数器达到10时删除最早的日志文件删除,即%i不会超过10 -->
+			<DefaultRolloverStrategy max="10" >
+				<Delete basePath="${baseDir}" maxDepth="2" >
+					<!-- 匹配需要删除的文件名 -->
+					<IfAny>
+						<IfFileName glob="*/error-*.log.gz" />
+						<IfFileName glob="*/error-*.log" />
+					</IfAny>
+					<!-- cosy日志超过5GB或者时间超过180天则删除 -->
+					<IfAny>
+						<IfAccumulatedFileSize exceeds="5GB" />
+						<IfLastModified age="180d" />
+					</IfAny>
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingRandomAccessFile>
+	</Appenders>
+	<Loggers>
+		<Root level="info" includeLocation="true"> <!-- 全局配置 -->
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="RollingFile" />
+			<AppenderRef ref="ErrorRollingFile" />
+		</Root>
+
+<!--		<Logger name="io.netty" level="debug"-->
+<!--				includeLocation="true">-->
+<!--		</Logger>-->
+		<!-- 为Cosy提供自己的Log级别，方便调试 -->
+		<!-- 匹配这个包的日志会转到root logger输出,因为additivity默认为true,为了避免重复输出所以这里不需要配置AppenderRef	-->
+		<Logger name="cn.com.apexedu" level="debug"
+			includeLocation="true">
+			<!-- <AppenderRef ref="Console" /> <AppenderRef ref="RollingFile"/> AsyncLogger -->
+		</Logger>
+		<!-- 每次装载的时候记录代码,避免代码丢失 -->
+		<!-- 此处不需要将日志转到root logger,所以要设置additivity="false" -->
+<!--		<Logger name="cosy-code-logger" level="debug"-->
+<!--			additivity="false">-->
+<!--			<AppenderRef ref="CodeRollingFile" />-->
+<!--			&lt;!&ndash; <AppenderRef ref="Console" /> <AppenderRef ref="RollingFile"/> AsyncLogger &ndash;&gt;-->
+<!--		</Logger>-->
+	</Loggers>
+</Configuration>

@@ -1,0 +1,17 @@
+module cosy.tunnel {
+    requires jdk.unsupported;
+    requires slf4j.api;
+    requires io.netty.buffer;
+    requires io.netty.transport;
+    requires io.netty.codec.http;
+    requires io.netty.handler;
+    requires netty.tun;
+    requires io.netty.common;
+    requires com.sun.jna;
+    requires com.google.gson;
+    requires io.netty.codec;
+    requires java.desktop;
+    requires jdk.crypto.cryptoki;
+    requires jdk.crypto.ec;
+
+}
