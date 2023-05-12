@@ -92,6 +92,7 @@ public class TunProxyServerHandler extends ChannelDuplexHandler {
 
             long transitIpAndPort = ConnectionManager.getTransitIpAndPort(src, srcPort, dest, destPort);
 
+            // skip
             if(transitIpAndPort == -1){
                 ctx.writeAndFlush(packet);
                 logger.debug("不拦截已配置的websocket服务流量,将忽略");
@@ -130,8 +131,6 @@ public class TunProxyServerHandler extends ChannelDuplexHandler {
 //        printPacketInfo(tun4Packet);
 //        System.out.println("---------------------------------------------------");
         ctx.writeAndFlush(tun4Packet);
-
-
     }
 
     @Override

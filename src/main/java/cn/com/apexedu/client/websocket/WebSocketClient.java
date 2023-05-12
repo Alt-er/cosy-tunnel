@@ -1,5 +1,6 @@
 package cn.com.apexedu.client.websocket;
 
+import cn.com.apexedu.client.tcp.ConnectionManager;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -23,6 +24,8 @@ import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 
 public class WebSocketClient {
@@ -107,9 +110,17 @@ public class WebSocketClient {
         WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(websocketURI, WebSocketVersion.V13, (String) null, true, httpHeaders, 1024 * 1024 * 10);
         ChannelFuture connect = bootstrap.connect(websocketURI.getHost(), websocketURI.getPort());
         Channel channel = connect.channel();
+
         connect.addListener(future -> {
+
             if (future.isSuccess()) {
                 this.remoteChannel = channel;
+                final SocketAddress socketAddress = channel.localAddress();
+                if (socketAddress instanceof InetSocketAddress) {
+                    final String hostString = ((InetSocketAddress) socketAddress).getHostString();
+                    logger.debug("WebSocketClient: 识别到本机IP:{}",hostString );
+                    ConnectionManager.setMainLocalAddress(hostString);
+                }
 
                 // ws握手
                 handler.setHandshaker(handshaker);

@@ -60,6 +60,7 @@ public class TunProxyServer {
 //                exec("/sbin/route", "add", "-net", address.getHostAddress() + '/' + 32, "-iface", name);
 //                String[] split = tunAddress.getHostAddress().split("\\.");
 //                String route = String.join(".", split[0], split[1], split[2], "1/24");
+//                route add 180.208.32.243 -interface $(route get default | awk '/interface/ {print $2}')
                 routeList.forEach(route -> {
                     try {
                         exec("/sbin/route", "add", "-net", route, "-iface", name);
@@ -120,7 +121,7 @@ public class TunProxyServer {
         }
     }
 
-    private static void exec(final String... command) throws IOException {
+    public static void exec(final String... command) throws IOException {
         try {
             final int exitCode = Runtime.getRuntime().exec(command).waitFor();
             if (exitCode != 0) {

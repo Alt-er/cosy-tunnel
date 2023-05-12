@@ -86,6 +86,17 @@ public class ConnectionManager {
         return transitServerPort;
     }
 
+    private static String mainLocalAddress = "127.0.0.1";
+
+    public static String getMainLocalAddress() {
+        return mainLocalAddress;
+    }
+
+    public static void setMainLocalAddress(String localAddress) {
+        ConnectionManager.mainLocalAddress = localAddress;
+    }
+
+
     public static void configTunProxyInfo(InetAddress tunIp, InetAddress transitClientIp, InetAddress transitServerIp, int transitServerPort) {
         ConnectionManager.tunIp = ByteBuffer.wrap(tunIp.getAddress()).getInt();
         ConnectionManager.transitClientIp = ByteBuffer.wrap(transitClientIp.getAddress()).getInt();
@@ -100,6 +111,10 @@ public class ConnectionManager {
 
 
     private static Set<Long> websocketIpPortSet = new HashSet<Long>();
+
+    public static boolean isWebsocketIpPort(int dest, int destPort) {
+        return websocketIpPortSet.contains(mergeTransit(dest, destPort));
+    }
 
     public static void configIpRangeWebSocketClientRelated(ConcurrentHashMap<String, WebSocketClient> related) {
         ConnectionManager.ipRangeWebSocketClientMap = related;
@@ -158,10 +173,11 @@ public class ConnectionManager {
         String key = getTransitConnectionKey(src, srcPort, dest, destPort);
         Long ipPort = connectionRelatedTransitMap.get(key);
         if (ipPort == null) {
-            if (websocketIpPortSet.contains(mergeTransit(dest ,destPort))) {
-                // skip
-                return -1;
-            }
+            // update skip
+//            if (websocketIpPortSet.contains(mergeTransit(dest, destPort)) || websocketIpPortSet.contains(mergeTransit(src, srcPort))) {
+//                // skip
+//                return -1;
+//            }
             int port = portPool.getPort();
             long transitIpAndPort = mergeTransit(transitClientIp, port);
             connectionRelatedTransitMap.put(key, transitIpAndPort);
